@@ -20,12 +20,6 @@
             android:id="@+id/scale_imageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-
-        <!--用于Alpha动画的ImageView-->
-        <ImageView
-            android:id="@+id/alpha_imageView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
     </FrameLayout>
 
     <!--展示滑动图片的ViewPager-->

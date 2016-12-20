@@ -13,7 +13,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -32,8 +31,6 @@ public class PhotoPreviewActivity extends Activity {
     private View mMaskView = null;
     // 用于缩放的ImageView
     private ImageView mScaleImageView = null;
-    // 用于Alpha的ImageView
-    private ImageView mAlphaImageView = null;
 
     // ViewPager
     private ViewPager mViewPager = null;
@@ -69,19 +66,9 @@ public class PhotoPreviewActivity extends Activity {
         initView();
 
         /**
-         * 1、动态改变AlphaImage的位置和宽高
+         * 1、数据
          */
         final PhotoData photoData = mPhotoDataList.get(mPosition);
-        //设置小图在此activity中的位置
-        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mAlphaImageView.getLayoutParams();
-        lp.leftMargin = photoData.locOnScreen[0];
-        lp.topMargin = photoData.locOnScreen[1];
-        lp.width = photoData.width;
-        lp.height = photoData.height;
-        mAlphaImageView.setScaleType(photoData.scaleType);
-        mAlphaImageView.setLayoutParams(lp);
-        // 加载AlphaImageView的小图
-        Glide.with(PhotoPreviewActivity.this).load(photoData.s_Url).diskCacheStrategy(DiskCacheStrategy.ALL).into(mAlphaImageView);
 
         /**
          * 2、加载mScaleImageView的小图
@@ -92,13 +79,13 @@ public class PhotoPreviewActivity extends Activity {
          * 3、开启动画
          */
         //
-        mAlphaImageView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        mScaleImageView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
                 //
                 calculateScaleAndStartZoomInAnim(photoData);
                 //
-                mAlphaImageView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                mScaleImageView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
 
@@ -137,8 +124,6 @@ public class PhotoPreviewActivity extends Activity {
         mMaskView = findViewById(R.id.mask_View);
         // 用于缩放动画的ImageView
         mScaleImageView = (ImageView) findViewById(R.id.scale_imageView);
-        // Alpha动画的ImageView
-        mAlphaImageView = (ImageView) findViewById(R.id.alpha_imageView);
 
 
         //-----ViewPager-----
@@ -180,8 +165,9 @@ public class PhotoPreviewActivity extends Activity {
         int translationY = (photoData.locOnScreen[1] + photoData.height / 2) - (int) (mScreenRect.height() / 2);
         float scaleX = photoData.width / mScreenRect.width();
         float scaleY = photoData.height / mScreenRect.height();
+        float scale = Math.max(scaleX, scaleY);
         // 开启放大动画
-        startZoomInAnim(mAlphaImageView, mScaleImageView, translationX, translationY, scaleX, scaleY, new Animator.AnimatorListener() {
+        startZoomInAnim(mScaleImageView, translationX, translationY, scale, new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
 
@@ -216,19 +202,19 @@ public class PhotoPreviewActivity extends Activity {
         mViewPager.setVisibility(View.GONE);
 
         /**
-         * 1、动态改变AlphaImage的位置和宽高
+         * 1、数据
          */
         final PhotoData photoData = mPhotoDataList.get(mPosition);
-        //设置小图在此activity中的位置
-        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mAlphaImageView.getLayoutParams();
-        lp.leftMargin = photoData.locOnScreen[0];
-        lp.topMargin = photoData.locOnScreen[1];
-        lp.width = photoData.width;
-        lp.height = photoData.height;
-        mAlphaImageView.setScaleType(photoData.scaleType);
-        mAlphaImageView.setLayoutParams(lp);
-        // 加载AlphaImageView的小图
-        Glide.with(PhotoPreviewActivity.this).load(photoData.s_Url).diskCacheStrategy(DiskCacheStrategy.ALL).into(mAlphaImageView);
+
+
+//        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mScaleImageView.getLayoutParams();
+//        lp.width = (int) mScreenRect.width();
+//        lp.height = (int) (mScreenRect.width() * (photoData.height / (float) photoData.width));
+//        lp.leftMargin = 0;
+//        lp.topMargin = (int) ((mScreenRect.height() - lp.height) / 2);
+//        mScaleImageView.setScaleType(photoData.scaleType);
+//        mScaleImageView.setLayoutParams(lp);
+
 
         /**
          * 2、加载mScaleImageView的小图
@@ -244,8 +230,9 @@ public class PhotoPreviewActivity extends Activity {
         int translationY = (photoData.locOnScreen[1] + photoData.height / 2) - (int) (mScreenRect.height() / 2);
         float scaleX = photoData.width / mScreenRect.width();
         float scaleY = photoData.height / mScreenRect.height();
+        float scale = Math.max(scaleX, scaleY);
         // 开启缩小动画
-        startZoomOutAnim(mAlphaImageView, mScaleImageView, translationX, translationY, scaleX, scaleY, new Animator.AnimatorListener() {
+        startZoomOutAnim(mScaleImageView, translationX, translationY, scale, new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
 
@@ -288,36 +275,26 @@ public class PhotoPreviewActivity extends Activity {
      * @param scaleImageView
      * @param translationX   位移start
      * @param translationY
-     * @param scaleX         scale start
-     * @param scaleY
      */
-    public void startZoomInAnim(final ImageView alphaImageView, final ImageView scaleImageView, int translationX, int translationY, float scaleX, float scaleY, Animator.AnimatorListener listener) {
+    public void startZoomInAnim(final ImageView scaleImageView, int translationX, int translationY, float scale, Animator.AnimatorListener listener) {
         // 动画运行时间，单位ms
-        int scaleAnimaTime = 300;
-        int alphaAnimaTime = scaleAnimaTime / 6;
+        int scaleAnimaTime = 400;
 
         //-------放大动画--------
         AnimatorSet set = new AnimatorSet();
         set.play(
                 ObjectAnimator.ofFloat(scaleImageView, "translationX", translationX, 0))
                 .with(ObjectAnimator.ofFloat(scaleImageView, "translationY", translationY, 0))
-                .with(ObjectAnimator.ofFloat(scaleImageView, "scaleX", scaleX, 1))
-                .with(ObjectAnimator.ofFloat(scaleImageView, "scaleY", scaleY, 1));
+                .with(ObjectAnimator.ofFloat(scaleImageView, "scaleX", scale, 1))
+                .with(ObjectAnimator.ofFloat(scaleImageView, "scaleY", scale, 1))
+                //-------alpha动画--------
+                .with(ObjectAnimator.ofFloat(mMaskView, "alpha", 0, 1));
         set.setDuration(scaleAnimaTime);
         set.setInterpolator(new DecelerateInterpolator());
         if (listener != null) {
             set.addListener(listener);
         }
         set.start();
-
-        //-------alpha动画--------
-        AnimatorSet set1 = new AnimatorSet();
-        set1.play(ObjectAnimator.ofFloat(alphaImageView, "alpha", 1, 0))
-                .with(ObjectAnimator.ofFloat(scaleImageView, "alpha", 0, 1))
-                .with(ObjectAnimator.ofFloat(mMaskView, "alpha", 0, 1));
-        set1.setDuration(alphaAnimaTime);
-        set1.setInterpolator(new DecelerateInterpolator());
-        set1.start();
     }
 
 
@@ -327,27 +304,23 @@ public class PhotoPreviewActivity extends Activity {
      * @param scaleImageView
      * @param translationX   位移start
      * @param translationY
-     * @param scaleX         scale start
-     * @param scaleY
+     * @param scale          scale start
+     * @param scale
      */
-    public void startZoomOutAnim(final ImageView alphaImageView, final ImageView scaleImageView, int translationX, int translationY, float scaleX, float scaleY, Animator.AnimatorListener listener) {
+    public void startZoomOutAnim(final ImageView scaleImageView, int translationX, int translationY, float scale, Animator.AnimatorListener listener) {
         // 动画运行时间，单位ms
-        int scaleAnimaTime = 300;
+        int scaleAnimaTime = 400;
 
         //-------缩小动画--------
         AnimatorSet set = new AnimatorSet();
         set.play(
                 ObjectAnimator.ofFloat(scaleImageView, "translationX", 0, translationX))
                 .with(ObjectAnimator.ofFloat(scaleImageView, "translationY", 0, translationY))
-                .with(ObjectAnimator.ofFloat(scaleImageView, "scaleX", 1, scaleX))
-                .with(ObjectAnimator.ofFloat(scaleImageView, "scaleY", 1, scaleY))
+                .with(ObjectAnimator.ofFloat(scaleImageView, "scaleX", 1, scale))
+                .with(ObjectAnimator.ofFloat(scaleImageView, "scaleY", 1, scale))
                 // ---Alpha动画---
                 // mMaskView伴随着一个Alpha减小动画
-                .with(ObjectAnimator.ofFloat(mMaskView, "alpha", 1, 0))
-                // scaleImageView伴随着一个Alpha减小动画
-                .with(ObjectAnimator.ofFloat(scaleImageView, "alpha", 1.8f, 0))
-                // alphaImageView伴随着一个Alpha增大动画
-                .with(ObjectAnimator.ofFloat(alphaImageView, "alpha", 0, 0));
+                .with(ObjectAnimator.ofFloat(mMaskView, "alpha", 1, 0));
         set.setDuration(scaleAnimaTime);
         if (listener != null) {
             set.addListener(listener);
