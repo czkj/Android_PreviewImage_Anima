@@ -176,6 +176,7 @@ public class PhotoPreviewActivity extends Activity {
             @Override
             public void onAnimationEnd(Animator animation) {
                 mViewPager.setVisibility(View.VISIBLE);
+                mScaleImageView.setVisibility(View.GONE);
             }
 
             @Override
@@ -200,20 +201,12 @@ public class PhotoPreviewActivity extends Activity {
          * 隐藏ViewPager
          */
         mViewPager.setVisibility(View.GONE);
+        mScaleImageView.setVisibility(View.VISIBLE);
 
         /**
          * 1、数据
          */
         final PhotoData photoData = mPhotoDataList.get(mPosition);
-
-
-//        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mScaleImageView.getLayoutParams();
-//        lp.width = (int) mScreenRect.width();
-//        lp.height = (int) (mScreenRect.width() * (photoData.height / (float) photoData.width));
-//        lp.leftMargin = 0;
-//        lp.topMargin = (int) ((mScreenRect.height() - lp.height) / 2);
-//        mScaleImageView.setScaleType(photoData.scaleType);
-//        mScaleImageView.setLayoutParams(lp);
 
 
         /**
