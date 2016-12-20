@@ -140,7 +140,9 @@ public class MainActivity extends Activity {
         // intent
         Intent intent = new Intent(MainActivity.this, PhotoPreviewActivity.class);
         intent.putExtra("position", position);
-        startActivity(intent);
+        MainActivity.this.startActivity(intent);
+        MainActivity.this.overridePendingTransition(R.anim.anim_preview_fade_in, R.anim.anim_preview_fade_out);
+
     }
 
 

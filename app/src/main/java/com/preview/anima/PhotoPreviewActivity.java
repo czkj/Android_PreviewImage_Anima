@@ -254,6 +254,7 @@ public class PhotoPreviewActivity extends Activity {
             @Override
             public void onAnimationEnd(Animator animation) {
                 PhotoPreviewActivity.this.finish();
+                PhotoPreviewActivity.this.overridePendingTransition(R.anim.anim_preview_fade_in, R.anim.anim_preview_fade_out);
             }
 
             @Override
@@ -314,7 +315,7 @@ public class PhotoPreviewActivity extends Activity {
         set1.play(ObjectAnimator.ofFloat(alphaImageView, "alpha", 1, 0))
                 .with(ObjectAnimator.ofFloat(scaleImageView, "alpha", 0, 1))
                 .with(ObjectAnimator.ofFloat(mMaskView, "alpha", 0, 1));
-        set1.setDuration(alphaAnimaTime / 6);
+        set1.setDuration(alphaAnimaTime);
         set1.setInterpolator(new DecelerateInterpolator());
         set1.start();
     }
@@ -341,12 +342,12 @@ public class PhotoPreviewActivity extends Activity {
                 .with(ObjectAnimator.ofFloat(scaleImageView, "scaleX", 1, scaleX))
                 .with(ObjectAnimator.ofFloat(scaleImageView, "scaleY", 1, scaleY))
                 // ---Alpha动画---
-                // scaleImageView伴随着一个Alpha减小动画
-                .with(ObjectAnimator.ofFloat(scaleImageView, "alpha", 2, 0))
-                // alphaImageView伴随着一个Alpha增大动画
-                .with(ObjectAnimator.ofFloat(alphaImageView, "alpha", 0, 0))
                 // mMaskView伴随着一个Alpha减小动画
-                .with(ObjectAnimator.ofFloat(mMaskView, "alpha", 1, 0));
+                .with(ObjectAnimator.ofFloat(mMaskView, "alpha", 1, 0))
+                // scaleImageView伴随着一个Alpha减小动画
+                .with(ObjectAnimator.ofFloat(scaleImageView, "alpha", 1.8f, 0))
+                // alphaImageView伴随着一个Alpha增大动画
+                .with(ObjectAnimator.ofFloat(alphaImageView, "alpha", 0, 0));
         set.setDuration(scaleAnimaTime);
         if (listener != null) {
             set.addListener(listener);
