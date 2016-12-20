@@ -292,7 +292,7 @@ public class PhotoPreviewActivity extends Activity {
      */
     public void startZoomInAnim(final ImageView alphaImageView, final ImageView scaleImageView, int translationX, int translationY, float scaleX, float scaleY, Animator.AnimatorListener listener) {
         // 动画运行时间，单位ms
-        int scaleAnimaTime = 390;
+        int scaleAnimaTime = 300;
         int alphaAnimaTime = scaleAnimaTime / 6;
 
         //-------放大动画--------
@@ -331,9 +331,7 @@ public class PhotoPreviewActivity extends Activity {
      */
     public void startZoomOutAnim(final ImageView alphaImageView, final ImageView scaleImageView, int translationX, int translationY, float scaleX, float scaleY, Animator.AnimatorListener listener) {
         // 动画运行时间，单位ms
-        int scaleAnimaTime = 390;
-        int alphaAnimaTime = scaleAnimaTime + scaleAnimaTime / 10;
-
+        int scaleAnimaTime = 300;
 
         //-------缩小动画--------
         AnimatorSet set = new AnimatorSet();
@@ -341,22 +339,20 @@ public class PhotoPreviewActivity extends Activity {
                 ObjectAnimator.ofFloat(scaleImageView, "translationX", 0, translationX))
                 .with(ObjectAnimator.ofFloat(scaleImageView, "translationY", 0, translationY))
                 .with(ObjectAnimator.ofFloat(scaleImageView, "scaleX", 1, scaleX))
-                .with(ObjectAnimator.ofFloat(scaleImageView, "scaleY", 1, scaleY));
-        set.setDuration(scaleAnimaTime);
-        set.setInterpolator(new DecelerateInterpolator());
-        set.start();
-
-        //-------alpha动画--------
-        AnimatorSet set1 = new AnimatorSet();
-        set1.play(ObjectAnimator.ofFloat(alphaImageView, "alpha", 0, 1))
-                .with(ObjectAnimator.ofFloat(scaleImageView, "alpha", 1, 0))
+                .with(ObjectAnimator.ofFloat(scaleImageView, "scaleY", 1, scaleY))
+                // ---Alpha动画---
+                // scaleImageView伴随着一个Alpha减小动画
+                .with(ObjectAnimator.ofFloat(scaleImageView, "alpha", 2, 0))
+                // alphaImageView伴随着一个Alpha增大动画
+                .with(ObjectAnimator.ofFloat(alphaImageView, "alpha", 0, 0))
+                // mMaskView伴随着一个Alpha减小动画
                 .with(ObjectAnimator.ofFloat(mMaskView, "alpha", 1, 0));
-        set1.setDuration(alphaAnimaTime);
-        set1.setInterpolator(new DecelerateInterpolator());
+        set.setDuration(scaleAnimaTime);
         if (listener != null) {
             set.addListener(listener);
         }
-        set1.start();
+        set.setInterpolator(new DecelerateInterpolator());
+        set.start();
     }
 
 
