@@ -292,7 +292,7 @@ public class PhotoPreviewActivity extends Activity {
      */
     public void startZoomInAnim(final ImageView alphaImageView, final ImageView scaleImageView, int translationX, int translationY, float scaleX, float scaleY, Animator.AnimatorListener listener) {
         // 动画运行时间，单位ms
-        int scaleAnimaTime = 39000;
+        int scaleAnimaTime = 390;
         int alphaAnimaTime = scaleAnimaTime / 6;
 
         //-------放大动画--------
@@ -331,7 +331,7 @@ public class PhotoPreviewActivity extends Activity {
      */
     public void startZoomOutAnim(final ImageView alphaImageView, final ImageView scaleImageView, int translationX, int translationY, float scaleX, float scaleY, Animator.AnimatorListener listener) {
         // 动画运行时间，单位ms
-        int scaleAnimaTime = 39000;
+        int scaleAnimaTime = 390;
         int alphaAnimaTime = scaleAnimaTime + scaleAnimaTime / 10;
 
 
